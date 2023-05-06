@@ -7,6 +7,7 @@ import numpy as np
 from typing import List, Tuple
 import uuid
 import time
+import datetime
 
 
 class HBaseAudioDataStore:
@@ -14,12 +15,12 @@ class HBaseAudioDataStore:
     """
     A class for storing and retrieving audio data in HBase.
     """
-    def __init__(self, table_name: str, host: str):
+    def __init__(self, table_name: str, host: str, port: int):
         """
         Initializes a connection to HBase and sets the table name.
         """
         self.table_name = table_name
-        self.connection = happybase.Connection(host, port = 9090)
+        self.connection = happybase.Connection(host, port)
         self.connection.open()
         self.table = self.connection.table(table_name)
 
@@ -30,6 +31,11 @@ class HBaseAudioDataStore:
         """
         self.connection.close()
 
+    def __open__(self):
+        """
+        Opens connection to HBase
+        """
+        self.connection.open()
 
     def create_table(self):
         """
@@ -43,11 +49,11 @@ class HBaseAudioDataStore:
         print(f'Table {self.table_name} created.')
 
 
-    def generate_row_key(audio_id, start_time):
+    def generate_row_key(audio_id):
         """
         Generates a row key for the HBase table based on the audio id and start time.
         """
-        timestamp = int(start_time.timestamp() * 1000)  # Convert start time to milliseconds since epoch
+        timestamp = time.time()
         random_uuid = uuid.uuid4().hex
         return f"{audio_id}_{timestamp}_{random_uuid}"
 
