@@ -1,3 +1,7 @@
+#!/usr/bin/python3
+
+
+import happybase
 import io
 import numpy as np
 from typing import List, Tuple
