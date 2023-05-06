@@ -14,12 +14,12 @@ class HBaseAudioDataStore:
     """
     A class for storing and retrieving audio data in HBase.
     """
-    def __init__(self, table_name: str):
+    def __init__(self, table_name: str, host: str):
         """
         Initializes a connection to HBase and sets the table name.
         """
         self.table_name = table_name
-        self.connection = happybase.Connection('localhost', port=9090)
+        self.connection = happybase.Connection(host, port = 9090)
         self.connection.open()
         self.table = self.connection.table(table_name)
 
