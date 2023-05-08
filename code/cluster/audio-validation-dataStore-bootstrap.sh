@@ -36,7 +36,7 @@ sudo pip3 install --target "/usr/lib/python3.7/site-packages/" happybase
 # Install the hdfs audio store
 git clone --recursive https://github.com/BrenKenna/hdfs-audio-store.git
 sudo mv hdfs-audio-store/ /usr/lib/python3.7/site-packages/
-
+sudo mv /usr/lib/python3.7/site-packages/hdfs-audio-store /usr/lib/python3.7/site-packages/HdfsAudioStore
 
 python --version
 pip3 --version

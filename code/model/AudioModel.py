@@ -9,7 +9,7 @@ import AudioSignal
 import AudioMetaData
 import TrackMetaData
 
-class AudiolModel:
+class AudioModel:
     """
     Model class for audio data stored in database
     """
