@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import AudioMetaData
 
 class AudioPost:
     """
