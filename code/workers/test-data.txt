@@ -1,0 +1,12 @@
+TrackName,Owner,BaseName,Path
+And the Beat Goes On,The Whispers,And-the-Beat-Goes-On.wav,band-cloud-audio-validation/real/And-the-Beat-Goes-On.wav
+Feel So Numb,Rob Zombie,Feel-So-Numb.wav,band-cloud-audio-validation/real/Feel-So-Numb.wav
+Give Me The Night,George Benson,Give-Me-The-Night.wav,band-cloud-audio-validation/real/Give-Me-The-Night.wav
+God of Thunder,KISS,God-of-Thunder.wav,band-cloud-audio-validation/real/God-of-Thunder.wav
+Grand Gathas of Baal Sin,Melechesh,Grand-Gathas-of-Baal-Sin.wav,band-cloud-audio-validation/real/Grand-Gathas-of-Baal-Sin.wav
+Sir Duke,Stevie Wonder,Sir-Duke.wav,band-cloud-audio-validation/real/Sir-Duke.wav
+Stomp,Brothers Johnson,Stomp.wav,band-cloud-audio-validation/real/Stomp.wav
+Superbeast,Rob Zombie,Superbeast.wav,band-cloud-audio-validation/real/Superbeast.wav
+Tempest Temper Enlil Enraged,Tempest-Temper-Enlil-Enraged.wav,Melechesh,band-cloud-audio-validation/real/Tempest-Temper-Enlil-Enraged.wav
+Thorns of Crimson Death,Dissection,Thorns-of-Crimson-Death.wav,band-cloud-audio-validation/real/Thorns-of-Crimson-Death.wav
+Wishing Well,Black Sabbath,Wishing-Well.wav,band-cloud-audio-validation/real/Wishing-Well.wav

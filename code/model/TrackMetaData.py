@@ -39,3 +39,15 @@ class TrackMetaData:
         Method to retrieve track name
         """
         return self.trackName
+
+    def toDict(self):
+        """
+        Return attributes as dictionary
+        """
+        return {
+            "TrackMetaData": {
+                "TrackName": self.trackName,
+                "Owner": self.owner,
+                "Timestamp": self.creationDate
+            }
+        }

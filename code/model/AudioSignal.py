@@ -19,3 +19,13 @@ class AudioSignal:
         """
         Method to retrieve audio signal
         """
+    
+    def toDict(self):
+        """
+        Return attributes as dictionary
+        """
+        return {
+            "AudioSignal": {
+                "Audio": self.wave
+            }
+        }

@@ -38,3 +38,16 @@ class AudioMetaData:
         Method to retrieve sampling rate
         """
         return self.samplingRate
+
+
+    def toDict(self):
+        """
+        Return attributes as dictionary
+        """
+        return {
+            "AudioMetaData": {
+                "SamplingRate": self.samplingRate,
+                "FrameCount": self.frameCount,
+                "Duration": self.duration
+            }
+        }

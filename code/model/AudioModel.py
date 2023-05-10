@@ -42,3 +42,11 @@ class AudioModel:
         Method to retrieve audio signal attribute
         """
         return self.audioSignal
+
+    def toDict(self):
+        """
+        Return attributes as dictionary
+        """
+        output = self.audioSignal.toDict()
+        output.update(self.audioMetaData.toDict())
+        output.update(self.trackMetaData.toDict())

@@ -12,7 +12,19 @@ import zlib
 import soundfile as sf
 import os
 import boto3
+from time import time
 
+
+#
+# Decided to drop from here
+#   => The thing that creates this can do that
+# from hbaseAudio import HBaseAudioStore
+#
+
+
+#
+# Maybe better as utils
+#   -> Bridge can use this utilities package?
 class AudioHandler:
     """
     Class to bridge datastore to audio data. Liken to utility
@@ -23,7 +35,7 @@ class AudioHandler:
         Initialize with audio factory
         """
         self.modelFactory = Factory.AudioFactory()
-        self.s3Client = s3Client = boto3.client('s3')
+        self.s3Client = boto3.client('s3')
 
 
     def loadAudio(self, trackPath):
@@ -42,6 +54,13 @@ class AudioHandler:
             "audioMetaData": self.modelFactory.makeAudioMeta(sampleRate, frameCount, duration)
         }
         return output
+
+
+    def makeTrackMeta(self, trackName: str, owner: str, timeStamp: time):
+        """
+        Request factory to make track meta data object
+        """
+        return self.modelFactory.makeTrackMeta(trackName, owner, timeStamp)
 
 
     def compressAudioSignal(self, signal: bytes):
@@ -65,6 +84,8 @@ class AudioHandler:
         return np.frombuffer(comprSignal, dtype="float32")
 
 
+    # Should really decompress signal, 
+    #  as the numpy stuff is handled in this class
     def writeAudio(self, audioSignal: bytes, outPath: str):
         """
         Write audio signal to file
@@ -81,6 +102,9 @@ class AudioHandler:
 
 
     def fetchAudio(self, bucket: str, key: str, outPath: str):
+        """
+        Download supplied audio
+        """
 
         # Initialize vars
         fileName = os.path.basename(key)
@@ -95,3 +119,4 @@ class AudioHandler:
             'trackName': trackName,
             'trackPath': trackPath
         }
+

@@ -43,7 +43,8 @@ class HBaseAudioDataStore:
         """
         families = {
             'audio': dict(max_versions=1),
-            'metadata': dict()
+            'audio_meta': dict(),
+            'track_meta': dict()
         }
         self.connection.create_table(self.table_name, families)
         print(f'Table {self.table_name} created.')
@@ -57,6 +58,7 @@ class HBaseAudioDataStore:
         random_uuid = uuid.uuid4().hex
         return f"{audio_id}_{timestamp}_{random_uuid}"
 
+
     def put_audio_data(self, audio_id: str, audio_data: bytes):
         """
         Inserts audio data into HBase.
@@ -65,11 +67,20 @@ class HBaseAudioDataStore:
         print(f'Audio data with id {audio_id} inserted into {self.table_name}.')
 
 
-    def put_audio_metadata(self, audio_id: str, metadata: dict):
+    def put_audio_metadata(self, audio_id: str, audio_metadata: dict):
         """
-        Inserts metadata for audio data into HBase.
+        Inserts audio metadata for audio data into HBase.
         """
-        column_values = {f'metadata:{k}': str(v) for k, v in metadata.items()}
+        column_values = {f'audio_meta:{k}': str(v) for k, v in audio_metadata.items()}
+        self.table.put(audio_id.encode(), column_values)
+        print(f'Metadata for audio data with id {audio_id} inserted into {self.table_name}.')
+
+
+    def put_track_metadata(self, audio_id: str, track_metadata: dict):
+        """
+        Inserts track metadata for audio data into HBase.
+        """
+        column_values = {f'audio_meta:{k}': str(v) for k, v in track_metadata.items()}
         self.table.put(audio_id.encode(), column_values)
         print(f'Metadata for audio data with id {audio_id} inserted into {self.table_name}.')
 
@@ -88,15 +99,26 @@ class HBaseAudioDataStore:
 
     def get_audio_metadata(self, audio_id: str) -> dict:
         """
-        Retrieves metadata for audio data from HBase.
+        Retrieves audio metadata for audio data from HBase.
         """
-        metadata = self.table.row(audio_id.encode(), columns=[b'metadata:'])
+        metadata = self.table.row(audio_id.encode(), columns=[b'audio_metadata:'])
         if metadata:
             return {k.decode('utf-8').split(':')[1]: v.decode('utf-8') for k, v in metadata.items()}
         else:
             print(f'Metadata for audio data with id {audio_id} not found in {self.table_name}.')
             return None
 
+
+    def get_track_metadata(self, audio_id: str) -> dict:
+        """
+        Retrieves track metadata for audio data from HBase.
+        """
+        metadata = self.table.row(audio_id.encode(), columns=[b'track_metadata:'])
+        if metadata:
+            return {k.decode('utf-8').split(':')[1]: v.decode('utf-8') for k, v in metadata.items()}
+        else:
+            print(f'Metadata for audio data with id {audio_id} not found in {self.table_name}.')
+            return None
 
     def get_audio_slice(self, audio_id: str, start_time: float, end_time: float) -> Tuple[np.ndarray, int]:
         """
