@@ -5,12 +5,14 @@ Created on Tues May 09 11:11 2023
 @author: kenna
 """
 
-from audioHandler import AudioHandler
-import AudioSignal as audS
-import AudioMetaData as audMD
-import TrackMetaData as tMD
-import AudioModel as audMod
 from time import time
+
+
+from HdfsAudioStore.audioHandler import AudioHandler
+from HdfsAudioStore.model import AudioSignal as audS
+from HdfsAudioStore.model import AudioMetaData as audMD
+from HdfsAudioStore.model import TrackMetaData as tMD
+from HdfsAudioStore.model import AudioModel as audMod
 
 class AudioFactory:
     """
@@ -21,7 +23,6 @@ class AudioFactory:
         """
         Initialize with object counters
         """
-        self.audioHandler = AudioHandler()
         self.audioMetaCount = 0
         self.trackMetaCount = 0
         self.audioSignalCount = 0

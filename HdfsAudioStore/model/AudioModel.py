@@ -5,9 +5,10 @@ Created on Mon May 26 16:39 2023
 @author: kenna
 """
 
-import AudioSignal
-import AudioMetaData
-import TrackMetaData
+
+from HdfsAudioStore.model import AudioSignal
+from HdfsAudioStore.model import AudioMetaData
+from HdfsAudioStore.model import TrackMetaData
 
 class AudioModel:
     """

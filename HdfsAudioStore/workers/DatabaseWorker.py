@@ -5,18 +5,12 @@ Created on Mon May 26 17:56 2023
 @author: kenna
 """
 
-
-# Useful modules
-import os, sys, re
-import time
-
-
 # System modules
-from workers import FileWorker
-from audioHandler import AudioHandler
-from hbaseAudio import HBaseAudioStore
-from model import AudioModel
-from hbaseAudio import Columns
+from HdfsAudioStore.workers import FileWorker
+from HdfsAudioStore.audioHandler import AudioHandler
+from HdfsAudioStore.hbaseAudio import HBaseAudioStore
+from HdfsAudioStore.model import AudioModel
+from HdfsAudioStore.hbaseAudio import Columns
 
 
 class DatabaseWorker:
@@ -29,13 +23,13 @@ class DatabaseWorker:
         # Compose supporting modules
         self.fileWorker = FileWorker.FileWorker()
         self.audioHandler = AudioHandler.AudioHandler()
-        self.hbaseColumns = Columns.ColumnFamilyEnum()
+        self.hbaseColumns = Columns.ColumnFamilyEnum
 
         # Define HBase config
         self.table_name = table_name
         self.host = host
         self.port = port
-        self.hbaseAudioStore = HBaseAudioStore.HBaseAudioDataStore()
+        self.hbaseAudioStore = HBaseAudioStore.HBaseAudioDataStore(self.table_name, self.host, self.port)
 
 
     def importTrack(self, trackPath: str, owner: str):
@@ -76,40 +70,37 @@ class DatabaseWorker:
             return None
 
         # Fetch required data
-        match column:
+        if self.hbaseColumns.isAudio(column):
+            audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
+            audioSignal = self.audioHandler.rebuildAudio(audioSignal)
+            return audioSignal
 
-            # Audio Signal
-            case self.hbaseColumns.AUDIO_SIGNAL:
-                audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
-                audioSignal = self.audioHandler.rebuildAudio(audioSignal)
-                return audioSignal
+        # Audio meta
+        elif self.hbaseColumns.isAudioMeta(column):
+            audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
+            audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
+            return audioMeta
 
-            # Audio meta
-            case self.hbaseColumns.AUDIO_META:
-                audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
-                audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
-                return audioMeta
+        # Track meta
+        elif self.hbaseColumns.isTrackMeta(column):
+            trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
+            trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
+            return trackMeta
 
-            # Track meta
-            case self.hbaseColumns.TRACK_META:
-                trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
-                trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
-                return trackMeta
+        # Fetch all
+        else:
 
-            # Fetch all
-            case _:
+            # Construct components
+            audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
+            audioSignal = self.audioHandler.rebuildAudio(audioSignal)
+            audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
+            audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
+            trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
+            trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
 
-                # Construct components
-                audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
-                audioSignal = self.audioHandler.rebuildAudio(audioSignal)
-                audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
-                audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
-                trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
-                trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
-
-                # Construct & return audio model
-                audioModel = AudioModel.AudioModel(audioSignal, audioMeta, trackMeta)
-                return audioModel
+            # Construct & return audio model
+            audioModel = AudioModel.AudioModel(audioSignal, audioMeta, trackMeta)
+            return audioModel
 
 
     def fetchTrack(self, trackName: str, owner: str, outPath: str):

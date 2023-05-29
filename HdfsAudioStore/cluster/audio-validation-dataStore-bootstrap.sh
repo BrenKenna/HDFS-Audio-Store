@@ -36,7 +36,12 @@ sudo pip3 install --target "/usr/lib/python3.7/site-packages/" happybase
 # Install the hdfs audio store
 git clone --recursive https://github.com/BrenKenna/hdfs-audio-store.git
 sudo mv hdfs-audio-store/ /usr/lib/python3.7/site-packages/
-sudo mv /usr/lib/python3.7/site-packages/hdfs-audio-store /usr/lib/python3.7/site-packages/HdfsAudioStore
+sudo mv /usr/lib/python3.7/site-packages/hdfs-audio-store/code /usr/lib/python3.7/site-packages/HdfsAudioStore
 
+
+# Revert to older urlib3
+cd /usr/lib/python3.7/site-packages/
+sudo rm -fr urllib*
+sudo /usr/bin/pip3 install "urllib3>=1.26.0,<2.0.0"
 python --version
 pip3 --version

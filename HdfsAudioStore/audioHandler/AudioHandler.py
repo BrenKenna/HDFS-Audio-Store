@@ -5,7 +5,6 @@ Created on Mon May 26 17:56 2023
 @author: kenna
 """
 
-from model import Factory
 import librosa
 import numpy as np
 import zlib
@@ -15,11 +14,11 @@ from time import time
 
 
 # Model class
-from model import AudioSignal
-from model import AudioMetaData
-from model import TrackMetaData
-from model import AudioModel
-
+from HdfsAudioStore.model import AudioSignal
+from HdfsAudioStore.model import AudioMetaData
+from HdfsAudioStore.model import TrackMetaData
+from HdfsAudioStore.model import AudioModel
+from HdfsAudioStore.model import Factory
 
 #
 # Decided to drop from here

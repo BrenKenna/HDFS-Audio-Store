@@ -1,0 +1,33 @@
+# Fetch required data
+        match column:
+            case self.hbaseColumns.AUDIO_SIGNAL:
+                audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
+                audioSignal = self.audioHandler.rebuildAudio(audioSignal)
+                return audioSignal
+
+            # Audio meta
+            case self.hbaseColumns.AUDIO_META:
+                audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
+                audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
+                return audioMeta
+
+            # Track meta
+            case self.hbaseColumns.TRACK_META:
+                trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
+                trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
+                return trackMeta
+
+            # Fetch all
+            case _:
+
+                # Construct components
+                audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
+                audioSignal = self.audioHandler.rebuildAudio(audioSignal)
+                audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
+                audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
+                trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
+                trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
+
+                # Construct & return audio model
+                audioModel = AudioModel.AudioModel(audioSignal, audioMeta, trackMeta)
+                return audioModel

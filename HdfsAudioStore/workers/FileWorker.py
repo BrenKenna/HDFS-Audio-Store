@@ -7,11 +7,10 @@ Created on Mon May 26 17:56 2023
 
 
 import os
-import boto3
 import time
 
-from audioHandler import AudioHandler
-from model import AudioInput
+from HdfsAudioStore.audioHandler import AudioHandler
+from HdfsAudioStore.model import AudioInput
 
 def getNow():
     """
