@@ -49,12 +49,16 @@ class AudioHandler:
 
         # Read audio
         wave, sampleRate = librosa.load(trackPath)
+        sampleRate = int(sampleRate)
         frameCount = wave.shape[0]
         duration = round(float(frameCount / sampleRate), 2)
+        # print("Wave Type:\t" + str(type(wave)))
+        # print("Sampling Rate:\t" + str(type(wave)))
+        # print("Duration:\t" + str(type(duration)))
 
         # Construct audio models
         output = {
-            "audioSignal": self.modelFactory.makeAudioSignal(self.compressAudioSignal()),
+            "audioSignal": self.modelFactory.makeAudioSignal(self.compressAudioSignal(wave)),
             "audioMetaData": self.modelFactory.makeAudioMeta(sampleRate, frameCount, duration)
         }
         return output
@@ -97,7 +101,7 @@ class AudioHandler:
         """
         Rebuild audio signal from compressed signal
         """
-        return self.modelFactory.makeAudioSignal( self.deCompressAudioSignal(comprSignal) )
+        return self.modelFactory.makeAudioSignal(self.deCompressAudioSignal(comprSignal))
 
 
     # Should really decompress signal, 
@@ -108,13 +112,33 @@ class AudioHandler:
         """
 
         # Handle outPath could be separate method
-        outPath = str(outPath + "/" + audioModel.getTrackMeta().getTrackName() + ".wav")
+        outPath = str(outPath + "/" + audioModel.getTrackMetaData().getTrackName() + ".wav")
 
         if not os.path.exists(outPath):
             sf.write(
                 outPath,
                 audioModel.getAudioSignal().getWave(),
-                audioModel.getAudioMeta().getSamplRate()
+                audioModel.getAudioMetaData().getSamplingRate()
+            )
+            print(f'Audio signal written to {outPath}')
+        else:
+            print(f'Error file {outPath} already exists.')
+
+
+    def testWriteAudio(self, audioModel: AudioModel, outPath: str):
+        """
+        Write audio signal to file
+        """
+
+        # Handle outPath could be separate method
+        outPath = str(outPath + "/" + audioModel.getTrackMetaData().getTrackName() + ".wav")
+        audioSignal = self.rebuildAudio(audioModel.getAudioSignal().getWave())
+
+        if not os.path.exists(outPath):
+            sf.write(
+                outPath,
+                audioSignal.getWave(),
+                audioModel.getAudioMetaData().getSamplingRate()
             )
             print(f'Audio signal written to {outPath}')
         else:

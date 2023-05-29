@@ -19,17 +19,20 @@ class AudioInputModel:
         self.audioType = None
         self.owner = None
 
+
     def setTrackName(self, trackName: str):
         """
         Set track name
         """
         self.trackName = trackName
 
+
     def getTrackName(self):
         """
         Get track name
         """
         return self.trackName
+
 
     def setTrackPath(self, trackPath: str):
         """
@@ -38,7 +41,8 @@ class AudioInputModel:
         self.trackPath = trackPath
         self.setBaseName( os.path.basename(trackPath) )
         self.setAudioType( self.getBaseName().split('.')[-1] )
-        self.setTrackName( self.getBaseName().replace( self.getAudioType(), "") )
+        self.setTrackName( self.getBaseName().replace( "." + self.getAudioType(), "") )
+
 
     def getTrackPath(self):
         """
@@ -46,11 +50,13 @@ class AudioInputModel:
         """
         return self.trackPath
 
+
     def setOwner(self, owner: str):
         """
         Set owner
         """
         self.owner = owner
+
 
     def getOwner(self):
         """
@@ -58,11 +64,13 @@ class AudioInputModel:
         """
         return self.owner
 
+
     def setBaseName(self, baseName: str):
         """
         Set basename
         """
         self.baseName = baseName
+
 
     def getBaseName(self):
         """
@@ -70,17 +78,20 @@ class AudioInputModel:
         """
         return self.baseName
 
+
     def setAudioType(self, audioType: str):
         """
         Set audioType
         """
         self.audioType = audioType
 
+
     def getAudioType(self):
         """
         Get audio type
         """
         return self.audioType
+
 
     def toDict(self):
         """
@@ -93,6 +104,7 @@ class AudioInputModel:
             "audioType": self.audioType,
             "owner": self.owner
         }
+
 
     def setInput(self, trackPath: str, owner: str ):
         """

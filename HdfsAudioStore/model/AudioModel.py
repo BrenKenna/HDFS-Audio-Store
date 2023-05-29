@@ -51,3 +51,4 @@ class AudioModel:
         output = self.audioSignal.toDict()
         output.update(self.audioMetaData.toDict())
         output.update(self.trackMetaData.toDict())
+        return output

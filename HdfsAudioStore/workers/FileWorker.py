@@ -6,6 +6,7 @@ Created on Mon May 26 17:56 2023
 """
 
 
+import boto3
 import os
 import time
 
@@ -25,6 +26,7 @@ class FileWorker:
     """
     def __init__(self):
         self.audioHandler = AudioHandler.AudioHandler()
+        self.s3Client = boto3.client('s3')
 
 
     def downloadAudio(self, audioInputModel: AudioInput.AudioInputModel):
@@ -34,13 +36,16 @@ class FileWorker:
 
         # Initialize vars
         bucket = audioInputModel.getTrackPath().split('/')[0]
-        key = "/".join(audioInputModel.getTrackPath().split('/')[1:-2])
+        prefix = "/".join(audioInputModel.getTrackPath().split('/')[1:-1])
+        key = str(prefix + "/" + audioInputModel.getBaseName())
         outPath = str(os.getcwd() + "/tmp/")
+        outFile = str(outPath + audioInputModel.getBaseName())
 
         # Fetch track
         os.makedirs(os.path.dirname(outPath), exist_ok = True)
-        self.s3Client.download_file(bucket, key, )
-        return str(outPath + audioInputModel.getBaseName())
+        print("Downloading: Bucket = " + bucket + ", Key = " + key + ", to outFile = " + outFile)
+        self.s3Client.download_file(bucket, key, outFile)
+        return outFile
 
 
     def fetchAudioFile(self, trackPath: str, owner: str):
@@ -49,19 +54,22 @@ class FileWorker:
         """
 
         # Download Audio
-        audioInput = AudioInput.AudioInputModel(trackPath, owner)
+        audioInput = AudioInput.AudioInputModel()
+        audioInput.setInput(trackPath, owner)
         outFile = self.downloadAudio(audioInput)
 
         # Build audio model
         audioModels = self.audioHandler.loadAudio(outFile)
         trackMeta = self.audioHandler.makeTrackMeta(
-            audioInput.getTrackPath(),
+            audioInput.getTrackName(),
             audioInput.getOwner(),
             getNow()
         )
+        # print(audioModels)
+        # print(trackMeta)
         audioModel = self.audioHandler.makeAudioModel(
             audioModels["audioSignal"],
-            audioModels["audioMeta"],
+            audioModels["audioMetaData"],
             trackMeta
         )
 
