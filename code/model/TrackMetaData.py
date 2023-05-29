@@ -40,6 +40,7 @@ class TrackMetaData:
         """
         return self.trackName
 
+
     def toDict(self):
         """
         Return attributes as dictionary

@@ -14,12 +14,15 @@ class AudioSignal:
         Construct audio model from audio signal
         """
         self.wave = wave
-    
-    def getWave():
+
+
+    def getWave(self):
         """
         Method to retrieve audio signal
         """
-    
+        return self.wave
+
+
     def toDict(self):
         """
         Return attributes as dictionary

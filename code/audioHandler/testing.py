@@ -44,7 +44,7 @@ key = str(prefix + "/" + object)
 outPath = str(os.getcwd() + "/tmp/")
 trackPath = str(outPath + object)
 os.makedirs(os.path.dirname(outPath), exist_ok = True)
-s3Client.download_file(bucket, key, str(outPath + object)
+s3Client.download_file(bucket, key, str(outPath + object))
 
 
 # Load track: Wave = 8940409, ByteArray = 35761636

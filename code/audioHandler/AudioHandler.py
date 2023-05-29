@@ -11,8 +11,14 @@ import numpy as np
 import zlib
 import soundfile as sf
 import os
-import boto3
 from time import time
+
+
+# Model class
+from model import AudioSignal
+from model import AudioMetaData
+from model import TrackMetaData
+from model import AudioModel
 
 
 #
@@ -35,7 +41,6 @@ class AudioHandler:
         Initialize with audio factory
         """
         self.modelFactory = Factory.AudioFactory()
-        self.s3Client = boto3.client('s3')
 
 
     def loadAudio(self, trackPath):
@@ -50,7 +55,7 @@ class AudioHandler:
 
         # Construct audio models
         output = {
-            "audioSignal": self.modelFactory.makeAudioSignal(self.compressAudioSignal),
+            "audioSignal": self.modelFactory.makeAudioSignal(self.compressAudioSignal()),
             "audioMetaData": self.modelFactory.makeAudioMeta(sampleRate, frameCount, duration)
         }
         return output
@@ -61,6 +66,18 @@ class AudioHandler:
         Request factory to make track meta data object
         """
         return self.modelFactory.makeTrackMeta(trackName, owner, timeStamp)
+
+
+    def makeAudioModel(
+        self,
+        audioSignal: AudioSignal.AudioSignal,
+        audioMeta: AudioMetaData.AudioMetaData,
+        trackMeta: TrackMetaData.TrackMetaData,
+    ):
+        """
+        Return audio model
+        """
+        return self.modelFactory.makeAudioModel(audioSignal, audioMeta, trackMeta)
 
 
     def compressAudioSignal(self, signal: bytes):
@@ -74,49 +91,32 @@ class AudioHandler:
         """
         Decompress input audio signal
         """
-        return zlib.decompress(signal)
+        return np.frombuffer(zlib.decompress(signal), dtype = "float32")
 
 
-    def rebuildAudio(self, comprSignal: bytes)
+    def rebuildAudio(self, comprSignal: bytes):
         """
         Rebuild audio signal from compressed signal
         """
-        return np.frombuffer(comprSignal, dtype="float32")
+        return self.modelFactory.makeAudioSignal( self.deCompressAudioSignal(comprSignal) )
 
 
     # Should really decompress signal, 
     #  as the numpy stuff is handled in this class
-    def writeAudio(self, audioSignal: bytes, outPath: str):
+    def writeAudio(self, audioModel: AudioModel, outPath: str):
         """
         Write audio signal to file
         """
+
+        # Handle outPath could be separate method
+        outPath = str(outPath + "/" + audioModel.getTrackMeta().getTrackName() + ".wav")
+
         if not os.path.exists(outPath):
             sf.write(
                 outPath,
-                self.audioSignal,
-                self.sampleRate
+                audioModel.getAudioSignal().getWave(),
+                audioModel.getAudioMeta().getSamplRate()
             )
             print(f'Audio signal written to {outPath}')
         else:
             print(f'Error file {outPath} already exists.')
-
-
-    def fetchAudio(self, bucket: str, key: str, outPath: str):
-        """
-        Download supplied audio
-        """
-
-        # Initialize vars
-        fileName = os.path.basename(key)
-        trackName = fileName.replace(".wav", "")
-        outPath = str(os.getcwd() + "/tmp/")
-        trackPath = str(outPath + fileName)
-
-        # Fetch track
-        os.makedirs(os.path.dirname(outPath), exist_ok = True)
-        self.s3Client.download_file(bucket, key, str(outPath + fileName))
-        return {
-            'trackName': trackName,
-            'trackPath': trackPath
-        }
-
