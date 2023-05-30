@@ -170,6 +170,7 @@ class HBaseAudioDataStore:
             print(f'Track Metadata for audio data with id {audio_id} not found in {self.table_name}.')
             return None
 
+
     def get_audio_slice(self, audio_id: str, start_time: float, end_time: float) -> Tuple[np.ndarray, int]:
         """
         Retrieves a slice of audio data from HBase.
@@ -183,7 +184,7 @@ class HBaseAudioDataStore:
         
         buffer = io.BytesIO(audio_data)
         audio_array = np.load(buffer)
-        sample_rate = int(self.get_audio_metadata(audio_id)['sample_rate'])
+        sample_rate = int(self.get_audio_metadata(audio_id)['SamplingRate'])
         start_index = int(start_time * sample_rate)
         end_index = int(end_time * sample_rate)
         return audio_array[start_index:end_index], sample_rate
