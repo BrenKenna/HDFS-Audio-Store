@@ -43,6 +43,7 @@ class HBaseAudioDataStore:
         self.connection = happybase.Connection(self.host, self.port)
         self.connection.open()
         self.table = self.connection.table(self.table_name)
+        self.__setState__(True)
 
 
     def __setState__(self, state: bool):
@@ -73,8 +74,8 @@ class HBaseAudioDataStore:
             self.__flipState__()
         families = {
             'audio': dict(max_versions=1),
-            'audio_meta': dict(),
-            'track_meta': dict()
+            'audio_metadata': dict(),
+            'track_metadata': dict()
         }
         self.connection.create_table(self.table_name, families)
         self.__flipState__()
@@ -107,10 +108,10 @@ class HBaseAudioDataStore:
         """
         if self.state is True:
             self.__flipState__()
-        column_values = {f'audio_meta: {k}': str(v) for k, v in audioModel.getAudioMetaData().toDict()["AudioMetaData"].items()}
+        column_values = {f'audio_metadata: {k}': str(v) for k, v in audioModel.getAudioMetaData().toDict()["AudioMetaData"].items()}
         self.table.put(audio_id.encode(), column_values)
         self.__flipState__()
-        print(f'Metadata for audio data with id {audio_id} inserted into {self.table_name}.')
+        print(f'Audio Metadata for audio data with id {audio_id} inserted into {self.table_name}.')
 
 
     def put_track_metadata(self, audio_id: str, audioModel: AudioModel.AudioModel):
@@ -119,10 +120,10 @@ class HBaseAudioDataStore:
         """
         if self.state is True:
             self.__flipState__()
-        column_values = {f'audio_meta: {k}': str(v) for k, v in audioModel.getTrackMetaData().toDict()["TrackMetaData"].items()}
+        column_values = {f'track_metadata: {k}': str(v) for k, v in audioModel.getTrackMetaData().toDict()["TrackMetaData"].items()}
         self.table.put(audio_id.encode(), column_values)
         self.__flipState__()
-        print(f'Metadata for audio data with id {audio_id} inserted into {self.table_name}.')
+        print(f'Track Metadata for audio data with id {audio_id} inserted into {self.table_name}.')
 
 
     def get_audio_data(self, audio_id: str) -> bytes:
@@ -151,7 +152,7 @@ class HBaseAudioDataStore:
         if metadata:
             return {k.decode('utf-8').split(':')[1]: v.decode('utf-8') for k, v in metadata.items()}
         else:
-            print(f'Metadata for audio data with id {audio_id} not found in {self.table_name}.')
+            print(f'Audio Metadata for audio data with id {audio_id} not found in {self.table_name}.')
             return None
 
 
@@ -166,7 +167,7 @@ class HBaseAudioDataStore:
         if metadata:
             return {k.decode('utf-8').split(':')[1]: v.decode('utf-8') for k, v in metadata.items()}
         else:
-            print(f'Metadata for audio data with id {audio_id} not found in {self.table_name}.')
+            print(f'Track Metadata for audio data with id {audio_id} not found in {self.table_name}.')
             return None
 
     def get_audio_slice(self, audio_id: str, start_time: float, end_time: float) -> Tuple[np.ndarray, int]:
