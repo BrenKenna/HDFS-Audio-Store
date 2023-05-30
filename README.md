@@ -63,7 +63,10 @@ A Track is the model of data to be imported. Composed of an 3 model objects.
 
 ## Active/Outstanding
 
-1). Testing DatabaseWorker.
+1). Testing DatabaseWorker (HBase):
+
+ - Writing works fine, but should consider compression if helps.
+ - Reading is active
 
 2). Exceptions.
 

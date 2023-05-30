@@ -119,7 +119,7 @@ class HBaseAudioDataStore:
         """
         if self.state is True:
             self.__flipState__()
-        column_values = {f'audio_meta: {k}': str(v) for k, v in audioModel.getTrackMetaData().toDict()["AudioMetaData"].items()}
+        column_values = {f'audio_meta: {k}': str(v) for k, v in audioModel.getTrackMetaData().toDict()["TrackMetaData"].items()}
         self.table.put(audio_id.encode(), column_values)
         self.__flipState__()
         print(f'Metadata for audio data with id {audio_id} inserted into {self.table_name}.')

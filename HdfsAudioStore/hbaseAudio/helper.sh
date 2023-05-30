@@ -1,5 +1,15 @@
 #!/bin/bash
 
+
+##################################################
+##################################################
+# 
+# 1). From Basic
+# 
+##################################################
+##################################################
+
+
 # start shell
 hbase shell
 
@@ -62,4 +72,57 @@ COLUMN                                 CELL
 1 row(s)
 Took 0.0082 seconds  
 
+"""
+
+
+##################################################
+##################################################
+# 
+# 2). From Updated
+# 
+##################################################
+##################################################
+
+
+#
+describe "audio_table"
+get "audio_table", "TheWhispers-And-the-Beat-Goes-On", { COLUMN => "audio_meta" }
+
+"""
+
+COLUMN FAMILIES DESCRIPTION                                                                                                                                         
+{NAME => 'audio', BLOOMFILTER => 'NONE', IN_MEMORY => 'false', VERSIONS => '1', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', COMPRESSION => 'NONE',
+ TTL => 'FOREVER', MIN_VERSIONS => '0', BLOCKCACHE => 'false', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}                                                      
+
+{NAME => 'audio_meta', BLOOMFILTER => 'NONE', IN_MEMORY => 'false', VERSIONS => '3', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', COMPRESSION => 'N
+ONE', TTL => 'FOREVER', MIN_VERSIONS => '0', BLOCKCACHE => 'false', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}                                                 
+
+{NAME => 'track_meta', BLOOMFILTER => 'NONE', IN_MEMORY => 'false', VERSIONS => '3', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', COMPRESSION => 'N
+ONE', TTL => 'FOREVER', MIN_VERSIONS => '0', BLOCKCACHE => 'false', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}                                                 
+
+
+COLUMN                                     CELL                                                                                                                     
+ audio_meta: Duration                      timestamp=2023-05-30T10:58:37.108, value=405.46                                                                          
+ audio_meta: FrameCount                    timestamp=2023-05-30T10:58:37.108, value=8940409                                                                         
+ audio_meta: SamplingRate                  timestamp=2023-05-30T10:58:37.108, value=22050                                                                           
+1 row(s)
+Took 0.0324 seconds
+
+"""
+
+# Drop row
+deleteall 'audio_table', "TheWhispers-And-the-Beat-Goes-On"
+
+"""
+Took 0.3480 seconds
+"""
+
+
+# Drop table
+disable 'audio_table'
+drop 'audio_table'
+
+"""
+Took 1.1937 seconds
+Took 0.3350 seconds
 """

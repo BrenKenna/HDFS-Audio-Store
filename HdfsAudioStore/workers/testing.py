@@ -153,8 +153,6 @@ audioDatabaseWorker = DatabaseWorker.DatabaseWorker(
 )
 
 """
-
---> No call is created already
 Table audio_data created.
 """
 
@@ -164,9 +162,18 @@ audioDatabaseWorker.importTrack(trackPath, owner, "audio_1")
 
 
 """
+
+Downloading: Bucket = band-cloud-audio-validation, Key = real/And-the-Beat-Goes-On.wav, to outFile = /home/hadoop/tmp/And-the-Beat-Goes-On.wav
 RowKey: TheWhispers-And-the-Beat-Goes-On
+Audio data with id TheWhispers-And-the-Beat-Goes-On inserted into audio_table.
+Metadata for audio data with id TheWhispers-And-the-Beat-Goes-On inserted into audio_table.
+Metadata for audio data with id TheWhispers-And-the-Beat-Goes-On inserted into audio_table.
 
+____________________________________
 
+Troubleshooting notes
+
+=> Get below with default config, changing on master produces second. Fine if config is rolled across nodes
 hbase.client.keyvalue.maxsize=0 
 Hbase_thrift.IllegalArgument: IllegalArgument(message=b'java.lang.IllegalArgumentException: KeyValue size too large
 
@@ -175,6 +182,7 @@ IOError(message=b'org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsExce
 with size 33201964 exceeds limit of 10485760 bytes
 
 Not picking up 75000000 after setting on master & restarting
+    => Rolling config update is needed here
 
 """
 

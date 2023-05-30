@@ -4,7 +4,8 @@
         "Properties": {
             "hbase.rootdir": "s3://band-cloud-audio-validation/hbase_replication",
             "hbase.hregion.max.filesize": "500000000",
-            "hbase.bucketcache.size": "600000"
+            "hbase.client.keyvalue.maxsize": "75000000",
+            "hbase.server.keyvalue.maxsize": "75000000"
         }
       },
       {

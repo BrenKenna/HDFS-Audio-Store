@@ -50,10 +50,10 @@ class DatabaseWorker:
         self.hbaseAudioStore.put_audio_data(rowKey, audioModel)
 
         # Post audio metadata
-        self.hbaseAudioStore.put_audio_metadata(audioModel)
+        self.hbaseAudioStore.put_audio_metadata(rowKey, audioModel)
 
         # Post tracj metadata
-        self.hbaseAudioStore.put_track_metadata(audioModel)
+        self.hbaseAudioStore.put_track_metadata(rowKey, audioModel)
 
 
     def handleColumnFamily(self, column: str):
