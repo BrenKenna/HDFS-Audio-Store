@@ -19,7 +19,7 @@ from HdfsAudioStore.hbaseAudio.Columns import ColumnFamilyEnum
 # Test AudioInput
 from HdfsAudioStore.model import AudioInput
 audioInput = AudioInput.AudioInputModel()
-owner, trackPath = ("The Whispers","band-cloud-audio-validation/real/And-the-Beat-Goes-On.wav")
+owner, trackPath = ("The Whispers", "band-cloud-audio-validation/real/And-the-Beat-Goes-On.wav")
 audioInput.setInput(trackPath, owner)
 audioInput.toDict()
 
@@ -109,12 +109,14 @@ datetime.fromtimestamp(os.path.getctime("tmp/And-the-Beat-Goes-On.wav"))
 
 Error file tmp/And-the-Beat-Goes-On.wav already exists.
 Audio signal written to tmp/And-the-Beat-Goes-On.wav
-datetime.datetime(2023, 5, 29, 15, 6, 30, 444744)
+datetime.datetime(2023, 5, 30, 8, 43, 2, 525133)
 
 ===> Can get the below if the compressed signal is passed
     -> Perhaps AudioSignal has a state
     -> Compression/Decompression actions changes this
     -> Breaks point of use though as the DatabaseWorker should request this from AudioHandler
+
+-> PySoundFile input validation not that great, is a dynamic language...
 
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -146,8 +148,35 @@ from HdfsAudioStore.hbaseAudio.Columns import ColumnFamilyEnum
 columns = ColumnFamilyEnum.values()
 audioDatabaseWorker = DatabaseWorker.DatabaseWorker(
     "audio_table",
-    "ip-192-168-2-129.eu-west-1.compute.internal",
+    "cluster.audio-validation.ie",
     9090
 )
+
+"""
+
+--> No call is created already
+Table audio_data created.
+"""
+
+# Import track
+owner, trackPath = ("The Whispers","band-cloud-audio-validation/real/And-the-Beat-Goes-On.wav")
+audioDatabaseWorker.importTrack(trackPath, owner, "audio_1")
+
+
+"""
+RowKey: TheWhispers-And-the-Beat-Goes-On
+
+
+hbase.client.keyvalue.maxsize=0 
+Hbase_thrift.IllegalArgument: IllegalArgument(message=b'java.lang.IllegalArgumentException: KeyValue size too large
+
+Hbase_thrift.IOError: 
+IOError(message=b'org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException: Failed 1 action: org.apache.hadoop.hbase.DoNotRetryIOException: Cell[TheWhispers-And-the-Beat-Goes-On/audio:/LATEST_TIMESTAMP/Put/vlen=33201903/seqid=0] 
+with size 33201964 exceeds limit of 10485760 bytes
+
+Not picking up 75000000 after setting on master & restarting
+
+"""
+
 
 

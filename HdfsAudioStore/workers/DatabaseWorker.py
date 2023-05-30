@@ -18,7 +18,7 @@ class DatabaseWorker:
     Class to support HBaseAudioStore with storing audio files from s3 in it
     """
 
-    def __init__(self, table_name: str, host: str, port: int):
+    def __init__(self, table_name: str, host: str, port: int, createTable = False):
 
         # Compose supporting modules
         self.fileWorker = FileWorker.FileWorker()
@@ -30,9 +30,11 @@ class DatabaseWorker:
         self.host = host
         self.port = port
         self.hbaseAudioStore = HBaseAudioStore.HBaseAudioDataStore(self.table_name, self.host, self.port)
+        self.createTable = createTable
+        if createTable is True:
+            self.hbaseAudioStore.create_table()
 
-
-    def importTrack(self, trackPath: str, owner: str):
+    def importTrack(self, trackPath: str, owner: str, audio_id: str):
         """
         Import track from s3 into HBase table
         """
@@ -42,13 +44,16 @@ class DatabaseWorker:
         type(audioModel)
 
         # Post audio signal
-        self.hbaseAudioStore.put_audio_data(str(owner + "-" + trackPath), audioModel.getAudioSignal())
+        dict = audioModel.getTrackMetaData().toDict()["TrackMetaData"]
+        rowKey = str(dict["Owner"].replace(" ", "") + "-" + dict["TrackName"])
+        print("RowKey:\t" + rowKey)
+        self.hbaseAudioStore.put_audio_data(rowKey, audioModel)
 
         # Post audio metadata
-        self.hbaseAudioStore.put_audio_metadata()
+        self.hbaseAudioStore.put_audio_metadata(audioModel)
 
         # Post tracj metadata
-        self.hbaseAudioStore.put_track_metadata()
+        self.hbaseAudioStore.put_track_metadata(audioModel)
 
 
     def handleColumnFamily(self, column: str):
