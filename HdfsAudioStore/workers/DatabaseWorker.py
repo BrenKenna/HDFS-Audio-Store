@@ -35,7 +35,7 @@ class DatabaseWorker:
             self.hbaseAudioStore.create_table()
 
 
-    def importTrack(self, trackPath: str, owner: str, audio_id: str):
+    def importTrack(self, trackPath: str, owner: str, audio_id: str = None):
         """
         Import track from s3 into HBase table
         """
@@ -44,17 +44,20 @@ class DatabaseWorker:
         audioModel = self.fileWorker.fetchAudioFile(trackPath, owner)
         # print("Audio Model Type:\t" + type(audioModel))
 
-        # Post audio signal
+        # Handle row key
         dict = audioModel.getTrackMetaData().toDict()["TrackMetaData"]
-        rowKey = str(dict["Owner"].replace(" ", "") + "-" + dict["TrackName"])
-        # print("RowKey:\t" + rowKey)
-        self.hbaseAudioStore.put_audio_data(rowKey, audioModel)
+        if audio_id is None:
+            audio_id = str(dict["Owner"].replace(" ", "") + "-" + dict["TrackName"])
+            # print("RowKey:\t" + rowKey)
+
+        # Post audio signal
+        self.hbaseAudioStore.put_audio_data(audio_id, audioModel)
 
         # Post audio metadata
-        self.hbaseAudioStore.put_audio_metadata(rowKey, audioModel)
+        self.hbaseAudioStore.put_audio_metadata(audio_id, audioModel)
 
-        # Post tracj metadata
-        self.hbaseAudioStore.put_track_metadata(rowKey, audioModel)
+        # Post track metadata
+        self.hbaseAudioStore.put_track_metadata(audio_id, audioModel)
 
 
     def handleColumnFamily(self, column: str):

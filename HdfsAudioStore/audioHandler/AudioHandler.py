@@ -120,12 +120,13 @@ class AudioHandler:
 
         # Handle outPath could be separate method
         outPath = str(outPath + "/" + audioModel.getTrackMetaData().getTrackName() + ".wav")
+        # audioSignal = self.rebuildAudio(audioModel.getAudioSignal().getWave())
 
         if not os.path.exists(outPath):
             sf.write(
                 outPath,
                 audioModel.getAudioSignal().getWave(),
-                audioModel.getAudioMetaData().getSamplingRate()
+                int(audioModel.getAudioMetaData().getSamplingRate())
             )
             print(f'Audio signal written to {outPath}')
         else:
@@ -139,13 +140,13 @@ class AudioHandler:
 
         # Handle outPath could be separate method
         outPath = str(outPath + "/" + audioModel.getTrackMetaData().getTrackName() + ".wav")
-        audioSignal = self.rebuildAudio(audioModel.getAudioSignal().getWave())
+        # audioSignal = self.rebuildAudio(audioModel.getAudioSignal().getWave())
 
         if not os.path.exists(outPath):
             sf.write(
                 outPath,
                 audioSignal.getWave(),
-                audioModel.getAudioMetaData().getSamplingRate()
+                int(audioModel.getAudioMetaData().getSamplingRate())
             )
             print(f'Audio signal written to {outPath}')
         else:
