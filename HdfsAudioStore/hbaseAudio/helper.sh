@@ -85,8 +85,8 @@ Took 0.0082 seconds
 
 
 #
-describe "audio_table"
-get "audio_table", "TheWhispers-And-the-Beat-Goes-On", { COLUMN => "audio_meta" }
+describe "audio_data"
+get "audio_data", "TheWhispers-And-the-Beat-Goes-On", { COLUMN => "audio_metadata" }
 
 """
 
@@ -119,8 +119,8 @@ Took 0.3480 seconds
 
 
 # Drop table
-disable 'audio_table'
-drop 'audio_table'
+disable 'audio_data'
+drop 'audio_data'
 
 """
 Took 1.1937 seconds

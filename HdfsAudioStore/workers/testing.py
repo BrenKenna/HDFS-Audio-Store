@@ -131,7 +131,7 @@ IndexError: tuple index out of range
 ################################################
 ################################################
 # 
-# 3). Database Worker
+# 3). Database Worker - Writing
 # 
 ################################################
 ################################################
@@ -187,4 +187,193 @@ Not picking up 75000000 after setting on master & restarting
 """
 
 
+################################################
+################################################
+# 
+# 4). ColumnFamily Enum
+# 
+################################################
+################################################
 
+
+# Import
+from HdfsAudioStore.hbaseAudio.Columns import ColumnFamilyEnum
+
+
+# Fetch column family enum values 
+print(ColumnFamilyEnum.values())
+[ enum.toLower() for enum in ColumnFamilyEnum ]
+
+"""
+['Audio Signal', 'Audio Meta', 'Track Meta', 'All']
+['audio signal', 'audio meta', 'track meta', 'all']
+
+"""
+
+
+# Search
+[ ColumnFamilyEnum.hasQuery(query) for query in [ "Audio Signal", "Audio Meta", "Track Meta", "Donald Duck" ] ]
+[ ColumnFamilyEnum.queryEnum(query) for query in [ "Audio Signal", "Audio Meta", "Track Meta", "Donald Duck" ] ]
+
+"""
+[True, True, True, False]
+
+[<ColumnFamilyEnum.AUDIO_SIGNAL: 'Audio Signal'>, <ColumnFamilyEnum.AUDIO_META: 'Audio Meta'>, <ColumnFamilyEnum.TRACK_META: 'Track Meta'>, None]
+"""
+
+
+# Direct check
+for query in [ "Audio Signal", "Audio Meta", "Track Meta" ]:
+    msgs = []
+    msgs.append(f'{query} is Audio Signal = {ColumnFamilyEnum.isAudio(query)}')
+    msgs.append(f'{query} is Audio MetaData = {ColumnFamilyEnum.isAudioMeta(query)}')
+    msgs.append(f'{query} is Track MetaData = {ColumnFamilyEnum.isTrackMeta(query)}')
+    msgs.append(f'{query} is All = {ColumnFamilyEnum.isAll(query)}')
+    print(msgs)
+
+"""
+
+['Audio Signal is Audio Signal = True', 'Audio Signal is Audio MetaData = False', 'Audio Signal is Track MetaData = False', 'Audio Signal is All = False']
+['Audio Meta is Audio Signal = False', 'Audio Meta is Audio MetaData = True', 'Audio Meta is Track MetaData = False', 'Audio Meta is All = False']
+['Track Meta is Audio Signal = False', 'Track Meta is Audio MetaData = False', 'Track Meta is Track MetaData = True', 'Track Meta is All = False']
+
+"""
+
+
+################################################
+################################################
+# 
+# 5). HBaseAudioStore
+# 
+################################################
+################################################
+
+
+# Import modules
+import HdfsAudioStore
+from HdfsAudioStore.workers import FileWorker
+from HdfsAudioStore.workers import DatabaseWorker
+from HdfsAudioStore.hbaseAudio.Columns import ColumnFamilyEnum
+
+
+# Fetch column family enum values & Construct DB worker
+columns = ColumnFamilyEnum.values()
+audioDatabaseWorker = DatabaseWorker.DatabaseWorker(
+    "audio_data",
+    "cluster.audio-validation.ie",
+    9090
+)
+
+
+# Fetch data
+rowKey = "TheWhispers-And-the-Beat-Goes-On"
+dir(audioDatabaseWorker.hbaseAudioStore)
+audioDatabaseWorker.hbaseAudioStore.get_audio_metadata(rowKey)
+
+
+audioDatabaseWorker.hbaseAudioStore.__flipState__()
+metadata = audioDatabaseWorker.hbaseAudioStore.table.row(rowKey.encode(), columns=[b'audio_metadata'])
+
+"""
+{b'audio_metadata: Duration': b'405.46', b'audio_metadata: FrameCount': b'8940409', b'audio_metadata: SamplingRate': b'22050'}
+
+get "audio_data", "TheWhispers-And-the-Beat-Goes-On", { COLUMNS => "track_metadata" }
+
+COLUMN                                     CELL                                                                                                                      
+ audio_metadata: Duration                  timestamp=2023-05-31T10:12:17.394, value=405.46                                                                           
+ audio_metadata: FrameCount                timestamp=2023-05-31T10:12:17.394, value=8940409                                                                          
+ audio_metadata: SamplingRate              timestamp=2023-05-31T10:12:17.394, value=22050
+
+COLUMN                                     CELL                                                                                                                      
+ track_metadata: Owner                     timestamp=2023-05-31T10:12:17.400, value=The Whispers                                                                     
+ track_metadata: Timestamp                 timestamp=2023-05-31T10:12:17.400, value=1685527936.5559332                                                               
+ track_metadata: TrackName                 timestamp=2023-05-31T10:12:17.400, value=And-the-Beat-Goes-On 
+"""
+
+
+
+
+################################################
+################################################
+# 
+# 6). Database Worker - Reading
+# 
+################################################
+################################################
+
+
+# Import modules
+import HdfsAudioStore
+from HdfsAudioStore.workers import FileWorker
+from HdfsAudioStore.workers import DatabaseWorker
+from HdfsAudioStore.hbaseAudio.Columns import ColumnFamilyEnum
+
+
+# Fetch column family enum values & Construct DB worker
+columns = ColumnFamilyEnum.values()
+audioDatabaseWorker = DatabaseWorker.DatabaseWorker(
+    "audio_data",
+    "cluster.audio-validation.ie",
+    9090
+)
+
+
+# Import track
+owner, trackPath = ("The Whispers","band-cloud-audio-validation/real/And-the-Beat-Goes-On.wav")
+audioDatabaseWorker.importTrack(trackPath, owner, "audio_1")
+
+"""
+Downloading: Bucket = band-cloud-audio-validation, Key = real/And-the-Beat-Goes-On.wav, to outFile = /home/hadoop/tmp/And-the-Beat-Goes-On.wav
+RowKey: TheWhispers-And-the-Beat-Goes-On
+Audio data with id TheWhispers-And-the-Beat-Goes-On inserted into audio_table.
+Audio Metadata for audio data with id TheWhispers-And-the-Beat-Goes-On inserted into audio_table.
+Track Metadata for audio data with id TheWhispers-And-the-Beat-Goes-On inserted into audio_table.
+"""
+
+
+# Fetch audio signal
+rowKey = "TheWhispers-And-the-Beat-Goes-On"
+audioSignal = audioDatabaseWorker.getTrack(rowKey, "Audio Signal")
+print(type(audioSignal))
+
+"""
+<class 'HdfsAudioStore.model.AudioSignal.AudioSignal'>
+"""
+
+
+# Fetch audio meta data
+rowKey = "TheWhispers-And-the-Beat-Goes-On"
+audioMeta = audioDatabaseWorker.getTrack(rowKey, "Audio Meta")
+print(type(audioMeta))
+
+"""
+Audio Metadata for audio data with id TheWhispers-And-the-Beat-Goes-On not found in audio_data.
+
+Audio MetaData Results:
+ {'Duration': '405.46', 'FrameCount': '8940409', 'SamplingRate': '22050'}
+
+<class 'HdfsAudioStore.model.AudioMetaData.AudioMetaData'>
+"""
+
+# Fetch track meta data
+rowKey = "TheWhispers-And-the-Beat-Goes-On"
+trackMeta = audioDatabaseWorker.getTrack(rowKey, "Track Meta")
+print(type(audioMeta))
+
+"""
+Track Meta Data Results:
+ {'Owner': 'The Whispers', 'Timestamp': '1685527936.5559332', 'TrackName': 'And-the-Beat-Goes-On'}
+
+<class 'HdfsAudioStore.model.AudioMetaData.AudioMetaData'>
+"""
+
+
+# Fetch audio model
+rowKey = "TheWhispers-And-the-Beat-Goes-On"
+audioModel = audioDatabaseWorker.getTrack("TheWhispers-And-the-Beat-Goes-On", "All")
+print(type(audioModel))
+
+
+"""
+<class 'HdfsAudioStore.model.AudioModel.AudioModel'>
+"""

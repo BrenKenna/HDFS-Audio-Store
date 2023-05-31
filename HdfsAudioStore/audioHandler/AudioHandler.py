@@ -71,6 +71,13 @@ class AudioHandler:
         return self.modelFactory.makeTrackMeta(trackName, owner, timeStamp)
 
 
+    def makeAudioMeta(self, sampleRate: int, frameCount: int, duration: float):
+        """
+        Request factory to make audio meta data object
+        """
+        return self.modelFactory.makeAudioMeta(sampleRate, frameCount, duration)
+    
+
     def makeAudioModel(
         self,
         audioSignal: AudioSignal.AudioSignal,

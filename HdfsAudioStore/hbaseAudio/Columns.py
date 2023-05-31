@@ -19,32 +19,39 @@ class ColumnFamilyEnum(Enum):
         """
         Return enum values as string array
         """
-        return [ member.value for member in ColumnFamilyEnum]
+        return [ enum.value for enum in ColumnFamilyEnum]
 
 
-    def queryVal(query: str):
+    def hasQuery(query: str):
         """
         Return whether enum has queried value
         """
-        for member in ColumnFamilyEnum:
-            if ColumnFamilyEnum.toLower(member.value) == query.lower():
-                return True
-            else:
-                return False
+        data = ColumnFamilyEnum.queryEnum(query)
+        return data is None
+
+
+    def queryEnum(query: str):
+        """
+        Return enum matching query
+        """
+        for enum in ColumnFamilyEnum:
+            if ColumnFamilyEnum.toLower(enum) == query.lower():
+                return enum
+        return None
 
 
     def toLower(input: Enum):
         """
         Return enum in lower case
         """
-        return input.lower()
+        return input.value.lower()
 
 
     def isAudio(query: str):
         """
         Verify if query is Audio Signal
         """
-        return ColumnFamilyEnum.AUDIO_SIGNAL.toLower(ColumnFamilyEnum.AUDIO_SIGNAL) == query.lower()
+        return ColumnFamilyEnum.toLower(ColumnFamilyEnum.AUDIO_SIGNAL) == query.lower()
 
 
     def isAudioMeta(query: str):
@@ -58,7 +65,7 @@ class ColumnFamilyEnum(Enum):
         """
         Verify if query is Audio Meta data
         """
-        return ColumnFamilyEnum.toLower(ColumnFamilyEnum.AUDIO_TRACK) == query.lower()
+        return ColumnFamilyEnum.toLower(ColumnFamilyEnum.TRACK_META) == query.lower()
 
 
     def isAll(query: str):

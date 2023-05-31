@@ -34,6 +34,7 @@ class DatabaseWorker:
         if createTable is True:
             self.hbaseAudioStore.create_table()
 
+
     def importTrack(self, trackPath: str, owner: str, audio_id: str):
         """
         Import track from s3 into HBase table
@@ -41,12 +42,12 @@ class DatabaseWorker:
 
         # Download track
         audioModel = self.fileWorker.fetchAudioFile(trackPath, owner)
-        type(audioModel)
+        # print("Audio Model Type:\t" + type(audioModel))
 
         # Post audio signal
         dict = audioModel.getTrackMetaData().toDict()["TrackMetaData"]
         rowKey = str(dict["Owner"].replace(" ", "") + "-" + dict["TrackName"])
-        print("RowKey:\t" + rowKey)
+        # print("RowKey:\t" + rowKey)
         self.hbaseAudioStore.put_audio_data(rowKey, audioModel)
 
         # Post audio metadata
@@ -60,7 +61,7 @@ class DatabaseWorker:
         """
         Check if column choice is valid
         """
-        return self.hbaseColumns.queryVal(str)
+        return self.hbaseColumns.queryEnum(column)
 
 
     # What columns? Supported by enum => AudioSignal, AudioMeta, TrackMeta, ALL
@@ -71,7 +72,7 @@ class DatabaseWorker:
 
         # Explode if invalid
         isValid = self.handleColumnFamily(column)
-        if isValid is False:
+        if isValid is None:
             return None
 
         # Fetch required data
@@ -83,13 +84,23 @@ class DatabaseWorker:
         # Audio meta
         elif self.hbaseColumns.isAudioMeta(column):
             audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
-            audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
+            print(f'Audio MetaData Results:\n {audioMeta}')
+            audioMeta = self.audioHandler.makeAudioMeta(
+                audioMeta["SamplingRate"],
+                audioMeta["FrameCount"],
+                audioMeta["Duration"]
+            )
             return audioMeta
 
         # Track meta
         elif self.hbaseColumns.isTrackMeta(column):
             trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
-            trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
+            print(f'Track Meta Data Results:\n {trackMeta}')
+            trackMeta = self.audioHandler.makeTrackMeta(
+                trackMeta["TrackName"],
+                trackMeta["Owner"],
+                trackMeta["Timestamp"]
+            )
             return trackMeta
 
         # Fetch all
@@ -99,9 +110,17 @@ class DatabaseWorker:
             audioSignal = self.hbaseAudioStore.get_audio_data(audioId)
             audioSignal = self.audioHandler.rebuildAudio(audioSignal)
             audioMeta = self.hbaseAudioStore.get_audio_metadata(audioId)
-            audioMeta = self.audioHandler.makeTrackMeta(audioMeta)
+            audioMeta = self.audioHandler.makeAudioMeta(
+                audioMeta["SamplingRate"],
+                audioMeta["FrameCount"],
+                audioMeta["Duration"]
+            )
             trackMeta = self.hbaseAudioStore.get_track_metadata(audioId)
-            trackMeta = self.audioHandler.makeTrackMeta(trackMeta)
+            trackMeta = self.audioHandler.makeTrackMeta(
+                trackMeta["TrackName"],
+                trackMeta["Owner"],
+                trackMeta["Timestamp"]
+            )
 
             # Construct & return audio model
             audioModel = AudioModel.AudioModel(audioSignal, audioMeta, trackMeta)
@@ -114,8 +133,8 @@ class DatabaseWorker:
         """
 
         # Get track
-        audioId = str(owner + "-" + trackName)
-        audioModel = self.getTrack(audioId)
+        audioId = str(owner.replace(" ", "") + "-" + trackName)
+        audioModel = self.getTrack(audioId, "All")
 
         # Write track
         #  only if output

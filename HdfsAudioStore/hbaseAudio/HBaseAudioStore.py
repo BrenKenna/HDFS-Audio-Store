@@ -132,7 +132,7 @@ class HBaseAudioDataStore:
         """
         if self.state is True:
             self.__flipState__()
-        audio_data = self.table.row(audio_id.encode(), columns=[b'audio:'])
+        audio_data = self.table.row(audio_id.encode(), columns=[b'audio'])
         self.__flipState__()
         if audio_data:
             return audio_data[b'audio:']
@@ -147,10 +147,10 @@ class HBaseAudioDataStore:
         """
         if self.state is True:
             self.__flipState__()
-        metadata = self.table.row(audio_id.encode(), columns=[b'audio_metadata:'])
+        metadata = self.table.row(audio_id.encode(), columns=[b'audio_metadata'])
         self.__flipState__()
         if metadata:
-            return {k.decode('utf-8').split(':')[1]: v.decode('utf-8') for k, v in metadata.items()}
+            return {k.decode('utf-8').split(':')[1].replace(" ", ""): v.decode('utf-8') for k, v in metadata.items()}
         else:
             print(f'Audio Metadata for audio data with id {audio_id} not found in {self.table_name}.')
             return None
@@ -162,14 +162,21 @@ class HBaseAudioDataStore:
         """
         if self.state is True:
             self.__flipState__()
-        metadata = self.table.row(audio_id.encode(), columns=[b'track_metadata:'])
+        metadata = self.table.row(audio_id.encode(), columns=[b'track_metadata'])
         self.__flipState__()
         if metadata:
-            return {k.decode('utf-8').split(':')[1]: v.decode('utf-8') for k, v in metadata.items()}
+            return {k.decode('utf-8').split(':')[1].replace(" ", ""): v.decode('utf-8') for k, v in metadata.items()}
         else:
             print(f'Track Metadata for audio data with id {audio_id} not found in {self.table_name}.')
             return None
 
+
+    def getAll(self, audio_id: str) -> dict:
+        """
+        Retrieves track metadata for audio data from HBase.
+        """
+        return None
+        
 
     def get_audio_slice(self, audio_id: str, start_time: float, end_time: float) -> Tuple[np.ndarray, int]:
         """
