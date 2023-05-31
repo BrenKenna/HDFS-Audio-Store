@@ -26,6 +26,7 @@ parser.add_argument("-a", "--action", action = "store", type = str, help = "IMPO
 parser.add_argument("-r", "--export_data", action = 'store', type = str, help = "Data for READ operation format rowKey='' outPath=''")
 parser.add_argument("-i", "--import_data", action = 'store', type = str, help = "Data for IMPORT operation format trackPath=,owner=")
 parser.add_argument("-c", "--create_table", action = 'store', type = bool, help = "Create table\n")
+parser.add_argument("-k", "--rowKey", action = 'store', type = str, help = "Row key")
 args = parser.parse_args()
 
 
@@ -73,12 +74,12 @@ if args.action.lower() == "export":
 
 
 # Helper method to support import
-def import_main(trackPath: str, owner: str):
+def import_main(trackPath: str, owner: str, audio_id: str = None):
     """
     Helper method for main to support imports
     """
     hbaseAudioStoreCli = HBaseMainWrapper.HBaseMain(args.table_name, args.host, args.port, args.create_table)
-    hbaseAudioStoreCli.importTrack(trackPath, owner)
+    hbaseAudioStoreCli.importTrack(trackPath, owner, rowKey = audio_id)
 
 
 # Helper method to support import
@@ -94,7 +95,12 @@ if __name__ == '__main__':
 
     # Import audio
     if args.action.lower() == "import":
-        import_main(trackPath, owner)
+
+        if args.rowKey != None:
+            print(f'Main: Using rowKey = {args.rowKey}')
+            import_main(trackPath, owner, args.rowKey)
+        else:
+            import_main(trackPath, owner)
 
     # Export audio data
     elif args.action.lower() == "export":

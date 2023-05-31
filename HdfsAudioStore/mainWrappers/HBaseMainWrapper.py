@@ -46,6 +46,7 @@ class HBaseMain:
         """
         Import a track
         """
+        print(f'Main-HBase Wrapper: Using rowKey = {rowKey}')
         if rowKey is None:
             return self.audioDatabaseWorker.importTrack(trackPath, owner, audio_id = None)
         else:

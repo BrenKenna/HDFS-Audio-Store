@@ -49,6 +49,7 @@ class DatabaseWorker:
         if audio_id is None:
             audio_id = str(dict["Owner"].replace(" ", "") + "-" + dict["TrackName"])
             # print("RowKey:\t" + rowKey)
+        print(f'DatabaseWorker: Using rowKey = {audio_id}')
 
         # Post audio signal
         self.hbaseAudioStore.put_audio_data(audio_id, audioModel)
